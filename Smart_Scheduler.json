@@ -1,0 +1,226 @@
+{
+  "name": "Smart Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is ChatAI. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -140,
+        -160
+      ],
+      "id": "0f3c90ed-1acd-49d6-9779-83d3ff2eff94",
+      "name": "Chat Input",
+      "webhookId": "7a5df88b-6387-44fb-8bc0-25f200854694"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Your role is my calendar assistant.\n\nIt's your job to add event on available timeslots on my calendar.\n\nThis tool check the event and find the available timeslots in my calendar and and create a event on my calendar.\n\nToday's date : {{ DateTime.now()}}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        220,
+        -220
+      ],
+      "id": "8598926b-68d4-4614-a1d6-2fde9a0277e6",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        120
+      ],
+      "id": "d1adf22e-69ae-430d-ad1b-9ec5b39656be",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "lIgkBw82Z2y2vuCp",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        300,
+        120
+      ],
+      "id": "db7394c8-ba6c-4858-94ea-38c5a3f434a4",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "This agent is for create an event in Google Calendar .",
+        "calendar": {
+          "__rl": true,
+          "value": "rohansingh28092001@gmail.com",
+          "mode": "list",
+          "cachedResultName": "rohansingh28092001@gmail.com"
+        },
+        "start": "={{ $fromAI('start_date') }}",
+        "end": "={{ $fromAI('end_date') }}",
+        "additionalFields": {
+          "description": "={{ $fromAI('description') }}",
+          "summary": "={{ $fromAI('summary') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        500,
+        120
+      ],
+      "id": "cc91ec72-f315-4814-b36f-57621f5eba40",
+      "name": "Create Event ",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BArsLMnSKbXHcdj6",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "to check the  availability in a calendar in Google Calendar.",
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "rohansingh28092001@gmail.com",
+          "mode": "list",
+          "cachedResultName": "rohansingh28092001@gmail.com"
+        },
+        "timeMin": "={{ $fromAI('start_time') }}",
+        "timeMax": "={{ $fromAI('end_time')}}",
+        "options": {
+          "outputFormat": "raw",
+          "timezone": {
+            "__rl": true,
+            "value": "Asia/Kolkata",
+            "mode": "list",
+            "cachedResultName": "Asia/Kolkata"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        760,
+        0
+      ],
+      "id": "59c3b0c4-ffcd-4231-9069-528e94fce571",
+      "name": " Check Available time",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BArsLMnSKbXHcdj6",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "                               Smart Scheduler\n",
+        "height": 80,
+        "width": 660,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -340
+      ],
+      "id": "c0f87692-0dbc-4934-b56b-2cc17794b411",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Input": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Check Available time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2d5acda5-0648-4757-bac8-4b5c9480a160",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6fe988fbc395c8d8e534866f4635c567085d96532ee4acdfc9230aaca5f10f74"
+  },
+  "id": "GMCMCsUguslk5gMz",
+  "tags": []
+}
